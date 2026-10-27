@@ -1,0 +1,43 @@
+# 第4章 ハンズオン：模擬 kintone API → PostgreSQL 同期（学習専用）
+services:
+  db:
+    image: postgres:16
+    container_name: lab4-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: lab_admin_password
+      POSTGRES_DB: salesdb
+      TZ: Asia/Tokyo
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d:ro
+
+  mock-api:
+    build: .
+    container_name: lab4-mock-kintone
+    command: php -S 0.0.0.0:8080 /app/mock/kintone.php
+    environment:
+      API_TOKEN: lab-token-readonly      # 模擬 kintone が受け付ける APIトークン
+      FAIL_RATE: "0.2"                   # 20% の確率で 429 を返す
+    volumes:
+      - ./mock:/app/mock:ro
+      - ./data:/app/data                  # records.json を編集して更新・削除を再現する
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  sync:
+    build: .
+    profiles: ["tools"]                   # docker compose run で実行するときだけ使う
+    environment:
+      KINTONE_BASE_URL: http://mock-api:8080
+      KINTONE_APP_ID: "12"
+      KINTONE_API_TOKEN: lab-token-readonly   # 本番では Secret Manager から読み込む
+      DB_DSN: "pgsql:host=db;port=5432;dbname=salesdb"
+      DB_USER: sync_writer
+      DB_PASSWORD: lab_sync_password
+    volumes:
+      - ./sync:/app/sync:ro
+      - ./mock:/app/mock:ro
+      - ./data:/app/data
+    depends_on: [db, mock-api]
