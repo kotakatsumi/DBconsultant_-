@@ -1,0 +1,19 @@
+# 第3章 ハンズオン用 PostgreSQL（学習専用。本番では使わないこと）
+services:
+  db:
+    image: postgres:16
+    container_name: lab-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: lab_admin_password   # 学習用。本番では Secret Manager で管理する
+      POSTGRES_DB: salesdb
+      TZ: Asia/Tokyo
+    ports:
+      - "127.0.0.1:5432:5432"   # 自分のPCからだけ接続できるようにする（0.0.0.0 に公開しない）
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d:ro   # 初回起動時に番号順で実行される
+      - ./data:/data:ro
+      - ./solutions:/solutions:ro
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:
