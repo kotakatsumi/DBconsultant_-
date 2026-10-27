@@ -141,3 +141,7 @@ docker run --rm --network host -v "$PWD":/app -w /app php:8.3-cli php send_webho
 1. この4つの攻撃のうち、**WAF（Cloud Armor）で防げる可能性があるもの**と、**WAF では防げないもの**を分類し、理由を説明してください（単元5-2）。
 2. 演習1の `/vuln/search` が、PostgreSQL の `app_rw` ロール（第3章：DELETE 権限なし）で接続していたとしたら、攻撃者にできること・できないことはどう変わりますか？
 3. 自分がこれまでに書いた（または教えている）Laravel のコードで、この4つの観点で危ない箇所がないか、1つ見直した結果を書いてください。
+
+---
+
+回答は [`answers/chapter-05/hands-on.md`](../answers/chapter-05/hands-on.md) に記入してください。

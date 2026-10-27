@@ -135,3 +135,7 @@ traceroute -n www.google.com    # Mac も同じ
 | 4 | DNS → TCP → TLS → HTTP の順序 | 2-4 |
 | 5 | 証明書の中身と、検証失敗時の挙動 | 2-4 |
 | 6 | ルーターのバケツリレー | 2-1 |
+
+---
+
+回答は [`answers/chapter-02/hands-on.md`](../answers/chapter-02/hands-on.md) に記入してください。

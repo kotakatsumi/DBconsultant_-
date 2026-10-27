@@ -206,3 +206,7 @@
 - 数字（件数・時間・人数）を聞けたか
 
 </details>
+
+---
+
+回答は [`answers/chapter-08/01.md`](../answers/chapter-08/01.md) に記入してください。

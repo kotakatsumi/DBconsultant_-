@@ -103,7 +103,7 @@ sequenceDiagram
     participant WAL as WAL ファイル（SSD）
     participant DATA as テーブル本体（SSD）
 
-    App->>PG: UPDATE ... ; COMMIT;
+    App->>PG: UPDATE … → COMMIT
     PG->>MEM: ページを書き換える
     PG->>WAL: 「ページ812の行3をこう変えた」と追記
     PG->>WAL: fsync（確実にディスクへ）
@@ -183,3 +183,7 @@ PostgreSQL が COMMIT のたびにテーブル本体のページを SSD に書�
 - 演習2：「データベースは、本体を書き換える前に必ず"何をしたか"の日記を先に書く。停電しても日記を読み直して、途中の作業を最後までやり直せる」。Excel の苦い経験に共感してから説明する。
 
 </details>
+
+---
+
+回答は [`answers/chapter-03/01.md`](../answers/chapter-03/01.md) に記入してください。

@@ -97,3 +97,7 @@ portfolio/
 - **Google Cloud の認定資格**（例：Associate Cloud Engineer、Professional Data Engineer）で、知識を体系的に補強し、顧客への信頼の材料にする
 - **情報処理安全確保支援士**などのセキュリティ系の資格で、第5章・第7章の知識を深める
 - **最初の1社**：知人の会社や、現職の社内業務など、小さな範囲で「フェーズ1」を実際にやってみる。実績と顧客の声が、次の案件を連れてくる
+
+---
+
+回答は [`answers/chapter-08/final-project.md`](../answers/chapter-08/final-project.md) に記入してください。
