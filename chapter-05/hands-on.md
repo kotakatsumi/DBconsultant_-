@@ -2,7 +2,7 @@
 
 > **目的**：単元5-1・5-3の攻撃を、自分の手で「成功させて」から「防ぐ」。攻撃が成立する仕組みを体で理解する。
 > **所要時間**：60〜90分
-> **必要なもの**：Docker Desktop（または PHP 8.x）
+> **必要なもの**：MacBook ＋ Docker Desktop（[SETUP-MAC.md](../SETUP-MAC.md) の手順1〜5を済ませ、Docker Desktop を起動しておく）
 > **使うファイル**：[`lab/app.php`](./lab/app.php)、[`lab/send_webhook.php`](./lab/send_webhook.php)
 
 > ⚠️ **このアプリは学習用に、わざと脆弱に作ってあります。インターネットに公開しないでください。** また、ここで学ぶ手口を、許可のない他人のシステムに試すことは法律（不正アクセス禁止法など）で禁止されています。自分の環境でのみ行ってください。
@@ -11,13 +11,17 @@
 
 ## 準備
 
+**ターミナルA**（サーバー用。起動したままにしておく）：
+
 ```bash
-cd chapter-05/lab
-docker run --rm -it -p 127.0.0.1:8000:8000 -v "$PWD":/app -w /app php:8.3-cli \
+cd ~/dev/DBconsultant_-/chapter-05/lab
+docker run --rm -it --name ch5-lab -p 127.0.0.1:8000:8000 -v "$PWD":/app -w /app php:8.3-cli \
   php -S 0.0.0.0:8000 app.php
 ```
 
-別のターミナルで操作します。データを初期状態に戻したいときは：
+`PHP 8.3.x Development Server (http://0.0.0.0:8000) started` と表示されたら準備完了です。以降の演習は、**別のターミナル（ターミナルB、`command + N`）**で操作します。
+
+> Homebrew で PHP を入れている場合（[SETUP-MAC.md](../SETUP-MAC.md) の手順8）は、Docker を使わずに `php -S 127.0.0.1:8000 app.php` でも起動できます。データを初期状態に戻したいときは：
 
 ```bash
 curl -X POST http://127.0.0.1:8000/reset
@@ -105,16 +109,15 @@ curl -s -H "X-User: alice" -X POST http://127.0.0.1:8000/safe/profile \
 
 ## 演習4：Webhook の署名検証（単元5-3）
 
-`send_webhook.php` は、SaaS のふりをして Webhook を送るスクリプトです。別のターミナルで実行します。
+`send_webhook.php` は、SaaS のふりをして Webhook を送るスクリプトです。ターミナルBで、**サーバーが動いているコンテナ（`ch5-lab`）の中で**実行します。
 
 ```bash
-cd chapter-05/lab
-docker run --rm --network host -v "$PWD":/app -w /app php:8.3-cli php send_webhook.php
+docker exec ch5-lab php send_webhook.php
 ```
 
-> Docker Desktop（Mac / Windows）で `--network host` が使えない場合は、`--network host` を外し、`-e TARGET=http://host.docker.internal:8000/webhook` を付けてください。
+> Homebrew の PHP でサーバーを起動した場合は、`cd ~/dev/DBconsultant_-/chapter-05/lab && php send_webhook.php` で実行します。
 
-| 実行するコマンドの末尾 | 再現する状況 | 期待する応答 |
+| コマンドの末尾に付けるもの（例：`docker exec ch5-lab php send_webhook.php tamper`） | 再現する状況 | 期待する応答 |
 |---|---|---|
 | （なし） | 本物の SaaS からの正しい通知 | `accepted` |
 | `tamper` | 経路上で金額を書き換えられた | `署名が一致しません` |
@@ -130,7 +133,7 @@ docker run --rm --network host -v "$PWD":/app -w /app php:8.3-cli php send_webho
 
 ## 後片付け
 
-1つ目のターミナルで `Ctrl+C` を押してサーバーを止めます。
+ターミナルAで `control + C` を押してサーバーを止めます（`--rm` を付けたので、コンテナも自動で削除されます）。
 
 ---
 

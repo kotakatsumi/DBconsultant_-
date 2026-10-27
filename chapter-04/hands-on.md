@@ -2,7 +2,7 @@
 
 > **目的**：第4章で学んだ「ページネーション・再試行・差分取得・正規化・冪等な保存・削除の検知」を、動くコードで確かめる。
 > **所要時間**：2〜3時間
-> **必要なもの**：Docker Desktop
+> **必要なもの**：MacBook ＋ Docker Desktop（[SETUP-MAC.md](../SETUP-MAC.md) の手順1〜6を済ませ、Docker Desktop を起動しておく）
 > **使うファイル**：[`lab/`](./lab/) フォルダ一式
 
 ```text
@@ -22,13 +22,15 @@ lab/
 ## 準備
 
 ```bash
-cd chapter-04/lab
-docker compose build
+cd ~/dev/DBconsultant_-/chapter-04/lab
+docker compose build                                   # 初回は数分かかる
 docker compose up -d db mock-api
 docker compose run --rm sync php mock/generate.php     # 1,234 件の顧客レコードを生成
 ```
 
-> Linux で `data/` への書き込みが Permission denied になる場合は、`chmod 777 data` ではなく `sudo chown 1000:1000 data` としてください（コンテナ内のユーザー ID が 1000 のため。単元1-3）。
+> このハンズオンでは、Mac の `lab/data/` フォルダがコンテナの中から見えるように共有されています（`docker-compose.yml` の `volumes`）。Mac 側で `records.json` を編集すると、すぐに模擬 API の返すデータに反映されます。
+>
+> 第3章のハンズオンとは別の PostgreSQL を **5433 番ポート**で起動するので、第3章の環境が起動したままでもぶつかりません。
 
 ---
 
@@ -50,6 +52,8 @@ for i in $(seq 1 10); do
     "http://127.0.0.1:8080/k/v1/records.json?app=12"
 done
 ```
+
+> `jq` を入れている場合（[SETUP-MAC.md](../SETUP-MAC.md) の手順8）は、1つ目のコマンドの末尾に `| jq` を付けると JSON が見やすく整形されます。
 
 **観察ポイント**：JSON の各フィールドが `{"type": ..., "value": ...}` という kintone 特有の形になっていること。会社名に `(株)` `㈱` `株式会社` や半角カナが混在していること。
 
@@ -132,10 +136,10 @@ docker compose run --rm sync php sync/sync.php
 
 ## 演習5：更新を差分で取り込む（単元4-1）
 
-`lab/data/records.json` をエディタで開き、`"$id": {"value": "5"}` のレコードを次のように書き換えます。
+`lab/data/records.json` を VS Code で開き（`code data/records.json`）、`command + F` で `"value": "5"` を検索して、`$id` が 5 のレコードを次のように書き換えます。
 
 - `電話番号` の `value` を `03-9999-0000` に
-- `更新日時` の `value` を**現在の UTC 時刻**に（例：`2026-10-27T07:40:00Z`。日本時間から9時間引く）
+- `更新日時` の `value` を**現在の UTC 時刻**に（日本時間から9時間引いた時刻。ターミナルで `date -u +"%Y-%m-%dT%H:%M:%SZ"` を実行すると、そのまま貼り付けられる形式で表示されます）
 
 ```bash
 docker compose run --rm sync php sync/sync.php

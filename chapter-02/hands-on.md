@@ -2,26 +2,31 @@
 
 > **目的**：DNS → TCP → TLS → HTTP の流れを、実際のコマンド出力で確認する。
 > **所要時間**：60〜90分
-> **環境**：Mac のターミナル、または Docker の Ubuntu コンテナ（下記）
->
-> ```bash
-> docker run --rm -it ubuntu:24.04 bash
-> apt-get update && apt-get install -y dnsutils curl openssl iproute2 netcat-openbsd traceroute
-> ```
+> **環境**：MacBook の「ターミナル」。使うコマンドはすべて macOS に最初から入っているので、**インストールも Docker も不要**です（[SETUP-MAC.md](../SETUP-MAC.md) の手順7）。
+> 会社のネットワークなど、ファイアウォールで一部の通信が制限されている環境では結果が変わることがあります。自宅の Wi-Fi やスマートフォンのテザリングで試すと確実です。
 
 ---
 
 ## 演習1：自分のネットワーク情報を見る（単元2-1）
 
+MacBook の Wi-Fi は、通常 `en0` という名前のネットワーク機器（インターフェース）です。
+
 ```bash
-ip addr        # Mac の場合は ifconfig
-ip route       # Mac の場合は netstat -rn
+ipconfig getifaddr en0              # Mac に割り当てられた IP アドレス
+ifconfig en0 | grep "inet "         # IP アドレスとサブネットマスク
+route -n get default | grep gateway # デフォルトゲートウェイ（家や会社のルーター）
+netstat -rn -f inet | head -15      # ルーティングテーブル
+curl -s https://ifconfig.me; echo   # インターネット側から見た自分の IP アドレス
 ```
+
+> 有線 LAN のアダプタを使っている場合など、`en0` で何も表示されないときは、`ifconfig | grep "inet "` で一覧を見て、`127.0.0.1` 以外の行を探してください。
 
 **確認すること**
 
-- 自分の IP アドレスと CIDR（例：`172.17.0.2/16`）。プライベートIPの範囲に入っているか？
-- `default via ...` の行（デフォルトゲートウェイ）。これが `0.0.0.0/0` 宛のルール。
+- `ifconfig` の `netmask 0xffffff00` は16進数で書かれたサブネットマスク。`ff` = 255 なので `255.255.255.0`、つまり **`/24`** という意味。
+- Mac の IP アドレス（例：`192.168.1.25`）は**プライベートIP**の範囲に入っているか？
+- `netstat -rn` の `default` の行が、**`0.0.0.0/0` 宛のルール**（どれにも当てはまらない宛先はルーターに渡す）。
+- 最後の `ifconfig.me` で表示される IP アドレスは、Mac の IP アドレスと**違う**はず。これが **NAT**（ルーターがグローバルIPに書き換えて代理で通信している）の証拠。
 
 ---
 
@@ -45,13 +50,13 @@ dig +trace www.example.com    # ルートサーバーから順にたどる
 ## 演習3：ポートが開いているか確かめる（単元2-2）
 
 ```bash
-nc -zv www.google.com 443     # HTTPS → 成功するはず
-nc -zv www.google.com 5432 -w 3   # PostgreSQL → タイムアウトするはず
+nc -zv -G 3 www.google.com 443    # HTTPS → 成功するはず
+nc -zv -G 3 www.google.com 5432   # PostgreSQL → 3秒でタイムアウトするはず（-G は接続の待ち時間）
 ```
 
 **確認すること**
 
-- 443 は接続成功（`succeeded` / `open`）。5432 はタイムアウト。
+- 443 は `Connection to www.google.com port 443 [tcp/https] succeeded!`。5432 は `Operation timed out`。
 - **タイムアウトはファイアウォールがパケットを黙って捨てている**ことを示す。「拒否（refused）」と返事をするより、攻撃者に情報を与えない。
 
 ---
@@ -76,7 +81,7 @@ curl -v https://www.example.com/ -o /dev/null
 < content-type: text/html
 ```
 
-（IP アドレスや証明書の内容は時期によって変わります）
+（IP アドレスや証明書の内容は時期によって変わります。macOS 標準の `curl` は表示が少し異なる場合がありますが、同じ情報が含まれています）
 
 **確認すること**：DNS → TCP → TLS → HTTP の順に処理が進んでいること。
 
@@ -107,7 +112,7 @@ curl -v https://wrong.host.badssl.com/ 2>&1 | grep -i "ssl\|certificate"
 ## 演習6：経路をたどる（単元2-1）
 
 ```bash
-traceroute -n www.google.com    # Mac も同じ
+traceroute -n -w 2 -m 20 www.google.com    # -w：各応答の待ち時間（秒）、-m：最大ホップ数
 ```
 
 **確認すること**

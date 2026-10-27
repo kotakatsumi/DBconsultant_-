@@ -2,7 +2,7 @@
 
 > **目的**：Excel の生データを正規化したテーブルに取り込み、第3章の各単元の仕組みを実際に動かして確かめる。
 > **所要時間**：2〜3時間
-> **必要なもの**：Docker Desktop
+> **必要なもの**：MacBook ＋ Docker Desktop（[SETUP-MAC.md](../SETUP-MAC.md) の手順1〜5を済ませ、Docker Desktop を起動しておく）
 > **使うファイル**：[`lab/`](./lab/) フォルダ一式
 
 ```text
@@ -19,9 +19,9 @@ lab/
 ## 準備：起動と接続
 
 ```bash
-cd chapter-03/lab
+cd ~/dev/DBconsultant_-/chapter-03/lab
 docker compose up -d
-docker compose logs -f db     # "database system is ready to accept connections" が出たら Ctrl+C
+docker compose logs -f db     # "database system is ready to accept connections" が出たら control + C で抜ける
 ```
 
 管理者として接続します。
@@ -30,7 +30,11 @@ docker compose logs -f db     # "database system is ready to accept connections"
 docker exec -it lab-postgres psql -U postgres -d salesdb
 ```
 
-> `docker-compose.yml` で `ports` を `127.0.0.1:5432:5432` にしている点に注目してください。`0.0.0.0` にすると、同じネットワークの他人からも接続できてしまいます（単元2-1）。
+> `docker-compose.yml` で `ports` を `127.0.0.1:5432:5432` にしている点に注目してください。`0.0.0.0` にすると、カフェなど同じ Wi-Fi に接続している他人からも、あなたの Mac の DB に接続できてしまいます（単元2-1）。
+
+> **`port is already allocated` と表示されたら**：Mac に別の PostgreSQL（Postgres.app や Homebrew の postgresql）が起動していて、5432 番ポートを使っています。[SETUP-MAC.md の「よくあるトラブル」](../SETUP-MAC.md#よくあるトラブル)を参照してください。
+
+> **Homebrew で `psql` を入れている場合**（[SETUP-MAC.md](../SETUP-MAC.md) の手順8）は、`docker exec` を使わずに Mac から直接接続することもできます：`psql -h 127.0.0.1 -p 5432 -U postgres -d salesdb`（パスワードは `docker-compose.yml` に書かれた学習用のもの）。
 
 **やり直したいとき**は、データごと消して再作成します。
 
@@ -155,7 +159,7 @@ SELECT pg_size_pretty(pg_relation_size('idx_big_orders_order_no')) AS index_size
 
 ## 演習4：更新の消失を再現し、防ぐ（単元3-2）
 
-**ターミナルを2つ開き**、両方で `docker exec -it lab-postgres psql -U postgres -d salesdb` を実行します。
+**ターミナルを2つ開き**（`command + N` で新しいウィンドウ、`command + T` で新しいタブ）、両方で `docker exec -it lab-postgres psql -U postgres -d salesdb` を実行します。
 
 ```sql
 -- 準備（どちらか一方で）

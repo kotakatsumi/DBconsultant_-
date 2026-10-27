@@ -12,8 +12,9 @@
 
 | 章 | テーマ | ハンズオン |
 |---|---|---|
+| [準備](./SETUP-MAC.md) | MacBook の環境構築（Homebrew・Docker・Git・VS Code） | — |
 | [第1章](./chapter-01/) | コンピューターの構造と OS・サーバーの基礎 | Docker でプロセス・権限・メモリ上限を観察 |
-| [第2章](./chapter-02/) | インターネットとネットワークの仕組み | dig / curl / openssl で通信を可視化 |
+| [第2章](./chapter-02/) | インターネットとネットワークの仕組み | Mac のターミナルで dig / curl / openssl を使い通信を可視化 |
 | [第3章](./chapter-03/) | データベース（RDB）の基礎と設計・堅牢化 | PostgreSQL で正規化・インデックス・トランザクション・権限 |
 | [第4章](./chapter-04/) | データ取り込みの設計と実装 | 模擬 kintone API → PostgreSQL の同期処理 |
 | [第5章](./chapter-05/) | Web・API・インフラの多層防御セキュリティ | 脆弱なコードを攻撃し、対策版と比較 |
@@ -29,6 +30,7 @@
 .
 ├── README.md            このファイル
 ├── CURRICULUM.md        全体設計・目次・進捗チェックリスト
+├── SETUP-MAC.md         MacBook の環境構築ガイド（最初に実施）
 ├── chapter-01/ 〜 chapter-08/
 │   ├── 01-xxx.md …      単元の教材（1単元 = 1ファイル）
 │   ├── hands-on.md      ハンズオンの手順
@@ -59,13 +61,17 @@
 | 【理解度チェック課題】 | 知識確認の短い問い（3問程度） |
 | 【顧客向け言語化トレーニング】 | 非エンジニアの経営者からの質問に、専門用語なしで答える演習 |
 
-### ハンズオンに必要なもの
+### ハンズオンの環境（MacBook 前提）
 
-| 必要なもの | 使う章 |
-|---|---|
-| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | 第1・2・3・4・5章 |
-| Google アカウント（BigQuery サンドボックス・Looker Studio。**クレジットカード不要**） | 第6章 |
-| テキストエディタ（VS Code など） | 全章 |
+ハンズオンは **MacBook（macOS、Apple シリコン / Intel どちらも可）** を前提にしています。**最初に [SETUP-MAC.md](./SETUP-MAC.md) の手順で環境を整えてください**（30〜60分）。
+
+| 必要なもの | 使う章 | 入れ方 |
+|---|---|---|
+| Homebrew・Git・GitHub CLI | 全章 | [SETUP-MAC.md](./SETUP-MAC.md) 手順2・3・5 |
+| Docker Desktop for Mac | 第1・3・4・5章 | [SETUP-MAC.md](./SETUP-MAC.md) 手順4 |
+| VS Code | 全章 | [SETUP-MAC.md](./SETUP-MAC.md) 手順6 |
+| ネットワークコマンド（dig / curl / openssl / nc / traceroute） | 第2章 | macOS に標準で入っている |
+| Google アカウント（BigQuery サンドボックス・Looker Studio。**クレジットカード不要**） | 第6章 | ブラウザだけで利用 |
 
 ハンズオンのコードは**学習専用**です。パスワード等は学習用の値を使っており、インターネットに公開しない前提で作られています。
 
